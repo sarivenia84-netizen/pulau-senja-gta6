@@ -5,7 +5,7 @@ export function createMinimap() {
   canvas.width = canvas.height = 220;
   canvas.setAttribute('aria-label', 'Peta Pulau Senja');
   Object.assign(canvas.style, { width: '220px', height: '220px', borderRadius: '50%', border: '2px solid rgba(255,239,211,.8)', boxShadow: '0 5px 24px #17212a99' });
-  function draw(player, mission, police = []) {
+  function draw(player, mission, police = [], missions = []) {
     const ctx = canvas.getContext('2d');
     const scale = 95 / (CITY_EDGE * 2);
     ctx.clearRect(0, 0, 220, 220);
@@ -26,10 +26,16 @@ export function createMinimap() {
       ctx.fillStyle = '#fff2d8aa'; ctx.font = '8px Arial';
       ctx.fillText(district.name.toUpperCase(), 110 + district.x * 34, 110 + district.z * 34);
     }
+    for (const objective of missions) {
+      const x = 110 + (objective.target[0] - player.position.x) * scale;
+      const y = 110 + (objective.target[2] - player.position.z) * scale;
+      ctx.fillStyle = objective.index === mission?.index ? '#ffd15c' : '#fff2d8';
+      ctx.beginPath(); ctx.arc(x, y, objective.index === mission?.index ? 5 : 2.5, 0, Math.PI * 2); ctx.fill();
+    }
     if (mission) {
       const x = 110 + (mission.target[0] - player.position.x) * scale;
       const y = 110 + (mission.target[2] - player.position.z) * scale;
-      ctx.fillStyle = '#ffd15c'; ctx.beginPath(); ctx.arc(x, y, 5, 0, Math.PI * 2); ctx.fill();
+      ctx.strokeStyle = '#ffd15c'; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.arc(x, y, 8, 0, Math.PI * 2); ctx.stroke();
     }
     for (const cop of police) {
       const x = 110 + (cop.x - player.position.x) * scale;

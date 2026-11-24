@@ -51,6 +51,11 @@ export const story = {
         { speaker: 'Nadia', text: 'Malam ini kita berhenti bersembunyi. Kota ini milik warganya.' },
       ],
     },
+    { title: 'Saksi Pesisir', dialogue: [{ speaker: 'Mira', text: 'Seorang saksi menunggu di Pantai Kerang. Temui dia sebelum sindikat.' }, { speaker: 'Nadia', text: 'Aku akan pastikan dia aman.' }] },
+    { title: 'Lintasan Dermaga', dialogue: [{ speaker: 'Bima', text: 'Kapal pembawa bukti merapat di Pelabuhan Tua.' }, { speaker: 'Nadia', text: 'Kita kawal sampai semua dokumen selamat.' }] },
+    { title: 'Rekaman Garasi', dialogue: [{ speaker: 'Tono', text: 'Ada rekaman transaksi tersembunyi di Bukit Salju.' }, { speaker: 'Nadia', text: 'Ini akan menguatkan kesaksian warga.' }] },
+    { title: 'Kota Bersaksi', dialogue: [{ speaker: 'Mira', text: 'Warga berkumpul di alun-alun. Mereka siap bicara.' }, { speaker: 'Nadia', text: 'Hari ini Pulau Senja mendengar kebenaran.' }] },
+    { title: 'Bantuan Warga', dialogue: [{ speaker: 'Mira', text: 'Para pedagang Pantai Kerang membutuhkan bantuanmu.' }, { speaker: 'Nadia', text: 'Kita jaga lingkungan ini bersama.' }] },
   ],
 };
 

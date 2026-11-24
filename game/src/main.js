@@ -7,8 +7,9 @@ import { createPlayer, updatePlayer, nearbyVehicle, enterVehicle, leaveVehicle, 
 import { createVehicles, createTrafficCars, updateVehicle } from './vehicles.js';
 import { tickTraffic } from './traffic.js';
 import { createPeds, tickPeds } from './peds.js';
-import { createMissions } from './missions.js';
+import { createMissions, missions as missionList } from './missions.js';
 import { createHud } from './hud.js';
+import { createCrew } from './crew.js';
 import { createAudio } from './audio.js';
 import { loadGame, saveGame } from './save.js';
 import { createMenu } from './menu.js';
@@ -30,7 +31,7 @@ const environment = createEnvironment(scene);
 const city = createCity(scene);
 const input = createInput(renderer.domElement);
 const player = createPlayer(scene);
-const vehicles = createVehicles(scene, city.blockers, 8);
+const vehicles = createVehicles(scene, city.blockers, 14);
 const traffic = createTrafficCars(scene, vehicles, 10);
 const peds = createPeds(scene);
 const query = new URLSearchParams(location.search);
@@ -38,19 +39,27 @@ const save = loadGame();
 if (save) player.position.set(save.x, 0.75, save.z);
 let money = save?.money ?? 1250;
 let respect = save?.respect ?? 0;
+const districts = city.districts.map(district => ({ name: district.name, value: Math.max(0, Math.min(100, save?.districts?.[district.name] ?? 0)) }));
+const police = createPolice(scene, Number(query.get('wanted')) || 0);
+let wanted = police.wanted;
+const crew = createCrew({ onWanted: value => { setPoliceWanted(police, value); wanted = police.wanted; } });
 const missions = createMissions({
   player,
   query,
   initialMission: save?.mission ?? 0,
+  getStanding: name => districts.find(district => district.name === name)?.value ?? 0,
   onComplete(mission) {
     money += mission.reward;
     respect += mission.respect;
+    if (mission.district) {
+      const standing = districts.find(district => district.name === mission.district);
+      if (standing) standing.value = Math.min(100, standing.value + Math.max(8, mission.respect));
+    }
   },
 });
+const persist = () => saveGame({ money, respect, mission: missions.current.index, player, districts: Object.fromEntries(districts.map(district => [district.name, district.value])) });
 const hud = createHud();
 const audio = createAudio();
-const police = createPolice(scene, Number(query.get('wanted')) || 0);
-let wanted = police.wanted;
 const clock = new THREE.Clock();
 const focus = new THREE.Vector3();
 const targetCamera = new THREE.Vector3();
@@ -65,10 +74,15 @@ if (shotSetup?.number === 1) {
   driven = chaseCar;
 }
 let toggleWasDown = false;
+let crewWasDown = false;
 
 function frame() {
   requestAnimationFrame(frame);
   const dt = Math.min(clock.getDelta(), 0.05);
+  crew.update(dt, player, driven);
+  const crewDown = input.keys.has('KeyQ');
+  if (crewDown && !crewWasDown) crew.call(player, vehicles, driven, police);
+  crewWasDown = crewDown;
   const toggleDown = input.keys.has('KeyF');
   if (toggleDown && !toggleWasDown) {
     if (driven) {
@@ -104,13 +118,14 @@ function frame() {
   }
   const hour = environment.update(clock.elapsedTime, startHour);
   const missionCompleted = missions.update();
-  if (missionCompleted) saveGame({ money, respect, mission: missions.current.index, player });
+  if (missionCompleted) persist();
+  if (!missions.current.bonus && missions.bonusAvailable) missions.startBonus();
   const mission = missions.current;
   audio.update(driven?.speed ?? 0, wanted);
   const dialogue = shotDialogue(shotSetup?.number) ?? getDialogue(mission.index)?.[0] ?? null;
-  hud.render({ player, vehicle: driven, mission, money, respect, wanted, hour, weapon: hud.weapon, dialogue, police: policeHud(police), policeStatus: getPoliceStatus(police) });
+  hud.render({ player, vehicle: driven, mission, missions: missionList.map((item, index) => ({ ...item, index })), districts, crew, money, respect, wanted, hour, weapon: hud.weapon, dialogue, police: policeHud(police), policeStatus: getPoliceStatus(police) });
   if (wanted !== police.wanted) wanted = police.wanted;
-  if (Math.floor(clock.elapsedTime) !== Math.floor(clock.elapsedTime - dt)) saveGame({ money, respect, mission: mission.index, player });
+  if (Math.floor(clock.elapsedTime) !== Math.floor(clock.elapsedTime - dt)) persist();
   renderer.render(scene, camera);
 }
 camera.position.set(-16, 13, -18);
@@ -130,24 +145,25 @@ window.pulauSenja = { camera, player, vehicles, traffic, peds, police, hud, audi
 
 window.addEventListener('keydown', event => {
   if (event.code === 'Enter' && missions.current.complete && missions.advance()) {
-    saveGame({ money, respect, mission: missions.current.index, player });
+    persist();
   }
   if (event.code === 'Escape') {
     if (document.querySelector('#ps-menu')) return;
     createMenu({
       onStart() {},
-      onSave() { saveGame({ money, respect, mission: missions.current.index, player }); },
+      onSave() { persist(); },
       onLoad() {
         const state = loadGame();
         if (!state) return false;
         money = state.money; respect = state.respect;
+        for (const district of districts) district.value = Math.max(0, Math.min(100, state.districts?.[district.name] ?? 0));
         player.position.set(state.x, 0.75, state.z);
         return true;
       },
     });
   }
 });
-window.addEventListener('beforeunload', () => saveGame({ money, respect, mission: missions.current.index, player }));
+window.addEventListener('beforeunload', persist);
 let mouseDown = false;
 renderer.domElement.addEventListener('pointerdown', event => {
   if (event.button !== 0 || mouseDown || driven) return;

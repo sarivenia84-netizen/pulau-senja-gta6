@@ -1,9 +1,10 @@
 import * as THREE from 'three';
 
-export const CAR_NAMES = ['Ombak GT', 'Sepat Badak', 'Layar Kencana', 'Rajawali Kota', 'Kuda Laut', 'Merapi Sport', 'Cendrawasih', 'Becak Baja'];
-const PAINT = ['#d87558', '#e4b64f', '#679b91', '#657ba0', '#c98791', '#d8d1bd', '#795c82', '#458080'];
+export const CAR_NAMES = ['Ombak GT', 'Sepat Badak', 'Layar Kencana', 'Rajawali Kota', 'Kuda Laut', 'Merapi Sport', 'Cendrawasih', 'Becak Baja', 'Sagara RS', 'Harimau Kota', 'Puspa Touring', 'Badai Selatan', 'Komet Senja', 'Benteng Tua'];
+const PAINT = ['#d87558', '#e4b64f', '#679b91', '#657ba0', '#c98791', '#d8d1bd', '#795c82', '#458080', '#c45d4c', '#8fa84b', '#65a7b5', '#be8b52', '#8874ad', '#7a8281'];
+const STATS = [30, 24, 27, 32, 22, 35, 29, 19, 38, 20, 26, 34, 40, 18];
 
-export function createVehicles(scene, blockers, count = 8) {
+export function createVehicles(scene, blockers, count = 14) {
   const cars = [];
   for (let i = 0; i < count; i++) {
     const group = new THREE.Group();
@@ -19,12 +20,13 @@ export function createVehicles(scene, blockers, count = 8) {
     const parking = [
       [0, 3.4], [40, -3.5], [-40, 3.5], [80, -3.5],
       [-80, 3.5], [120, -3.5], [-120, 3.5], [160, -3.5],
+      [0, -43.5], [40, 43.5], [-40, -43.5], [80, 43.5], [-80, -43.5], [120, 43.5],
     ];
     const spot = parking[i % parking.length];
     group.position.set(spot[0], 0, spot[1]);
     group.rotation.y = Math.PI;
     scene.add(group);
-    cars.push({ group, name: CAR_NAMES[i % CAR_NAMES.length], speed: 0, occupied: false, npc: false, wheels, paint });
+    cars.push({ group, name: CAR_NAMES[i % CAR_NAMES.length], speed: 0, maxSpeed: STATS[i % STATS.length], accel: 17 + i % 4, occupied: false, npc: false, wheels, paint });
   }
   return cars;
 }
@@ -49,8 +51,9 @@ export function collides(position, blockers, halfX = 1.2, halfZ = 2.2) {
 }
 
 export function updateVehicle(car, input, blockers, dt) {
-  const accel = input.keys.has('KeyW') ? 17 : input.keys.has('KeyS') ? -22 : 0;
-  car.speed = THREE.MathUtils.clamp(car.speed + accel * dt, -9, 30);
+  const accel = input.keys.has('KeyW') ? (car.accel ?? 17) : input.keys.has('KeyS') ? -22 : 0;
+  const crewBoost = performance.now() < (car.crewSpeedUntil ?? 0) ? 1.35 : 1;
+  car.speed = THREE.MathUtils.clamp(car.speed + accel * crewBoost * dt, -9, car.maxSpeed ?? 30);
   car.speed *= Math.exp(-dt * (accel ? 0.24 : 1.15));
   const steer = (input.keys.has('KeyA') ? 1 : 0) - (input.keys.has('KeyD') ? 1 : 0);
   if (Math.abs(car.speed) > 0.3) car.group.rotation.y += steer * dt * 1.45 * Math.sign(car.speed) * Math.min(1, Math.abs(car.speed) / 5);

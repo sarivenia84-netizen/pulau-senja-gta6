@@ -7,7 +7,8 @@ export function loadGame() {
     return {
       money: Number.isFinite(saved.money) ? saved.money : 1250,
       respect: Number.isFinite(saved.respect) ? saved.respect : 0,
-      mission: Number.isInteger(saved.mission) ? Math.max(0, Math.min(5, saved.mission)) : 0,
+      mission: Number.isInteger(saved.mission) ? Math.max(0, Math.min(9, saved.mission)) : 0,
+      districts: saved.districts && typeof saved.districts === 'object' ? saved.districts : {},
       x: Number.isFinite(saved.x) ? saved.x : 0,
       z: Number.isFinite(saved.z) ? saved.z : 0,
     };
@@ -20,6 +21,7 @@ export function saveGame(state) {
       money: state.money ?? 1250,
       respect: state.respect ?? 0,
       mission: state.mission ?? 0,
+      districts: state.districts ?? {},
       x: state.player?.position.x ?? 0,
       z: state.player?.position.z ?? 0,
     }));
