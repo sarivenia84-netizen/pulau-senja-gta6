@@ -1,19 +1,28 @@
 <!doctype html>
-<html lang="en">
+<html lang="id">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Block Dodger</title>
-<style>
-  html, body { margin: 0; height: 100%; overflow: hidden; background: #11141b; }
-  #game { position: fixed; inset: 0; width: 100%; height: 100%; display: block; touch-action: none; }
-  /* Read aloud, never shown: the status line screen readers announce. */
-  #status { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
-</style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Pulau Senja</title>
+  <style>
+    html, body { margin: 0; width: 100%; height: 100%; overflow: hidden; background: #e8a79d; font-family: Arial, sans-serif; }
+    canvas { display: block; }
+    #title { position: fixed; top: 22px; left: 270px; color: #fff6e8; text-shadow: 0 2px 12px #513e50; pointer-events: none; }
+    #title strong { display: block; letter-spacing: .19em; font-size: 18px; }
+    #title small { display: block; margin-top: 4px; letter-spacing: .12em; font-size: 9px; }
+    #hint { position: fixed; bottom: 25px; left: 36px; color: #fff8ef; font-size: 12px; letter-spacing: .08em; text-shadow: 0 2px 8px #32404e; pointer-events: none; }
+    #ps-title { bottom: 62px !important; }
+    #ps-stats { right: 28px !important; top: 170px !important; padding: 7px 9px; background: #17232dcc; border-radius: 3px; }
+    #ps-stats small:last-child { display: block; margin-top: 7px; padding: 3px 7px; background: #17232dcc; border-radius: 3px; text-shadow: 0 2px 4px #000; }
+    #ps-hud:has(#ps-dialogue[style*="display: flex"]) ~ #hint { display: none; }
+    #ps-dialogue { z-index: 2; }
+    @media (max-width: 700px) { #title { left: 220px; } #title strong { font-size: 16px; } }
+  </style>
+  <script type="importmap">{"imports":{"three":"./vendor/three.module.min.js"}}</script>
 </head>
 <body>
-<canvas id="game" aria-label="Block Dodger: move the paddle left and right to dodge falling blocks and catch coins"></canvas>
-<p id="status" role="status" aria-live="polite"></p>
-<script type="module" src="./src/main.js"></script>
+  <div id="title"><strong>PULAU SENJA</strong><small>KOTA DI UJUNG CAHAYA</small></div>
+  <div id="hint">W A S D · JELAJAHI KOTA &nbsp; / &nbsp; GESER MOUSE · LIHAT SEKITAR</div>
+  <script type="module" src="./src/main.js"></script>
 </body>
 </html>
