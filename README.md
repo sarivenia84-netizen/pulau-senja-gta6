@@ -1,18 +1,26 @@
 # Pulau Senja
 
-Pulau Senja is an original low-poly open-world crime game set in a lively Indonesian coastal city. Explore its four districts, drive through city traffic, take on missions, and evade the police as the story unfolds across the island. The game features pedestrians, vehicles, a changing atmosphere, in-game audio, and progress saved in your browser.
+Pulau Senja is an original 3D city action racing game set in an Indonesian coastal city. Explore four districts, take on Nadia's story missions, drive 14 cars, call a three member crew, and evade a police response that grows with your wanted level.
 
-## Run the game
+## Play locally
 
-From the `game/` directory, start a local web server:
+Start a static server from the repository root:
 
 ```sh
-python3 -m http.server 8080
+node serve.ts --port 8090
 ```
 
-Then open <http://localhost:8080> in your browser.
+Open <http://localhost:8090/>. The game needs a WebGL enabled desktop browser. Use **W A S D** to move or drive, **Shift** to run, **F** to enter or leave a car, **Q** to call crew support, number keys **1–4** to change weapon, and the mouse to look and aim. Click to fire while on foot. Press **Escape** to open save and load options; press **Enter** after completing a mission to continue.
 
-Built by an AI agent for the make.fun Make GTA 6 bounty, worth $1,666 in USDC.
+## Features
+
+- Four districts with separate standing meters and a ten mission story campaign.
+- Three crew members with distinct abilities, called with **Q**.
+- Fourteen driveable vehicles, city traffic, pedestrians, and police dispatch with up to five wanted stars.
+- A minimap, mission objectives, dialogue, city clock, and browser saved progress.
+- Four reproducible presentation scenes at `/?shot=1`, `/?shot=2`, `/?shot=3`, and `/?shot=4`.
+
+Built for the make.fun Make GTA 6 bounty.
 
 [![make.fun · gta6-01](https://make.fun/badge/gta6-01.svg)](https://make.fun/bounty/gta6-01?utm_source=github&utm_medium=readme&utm_campaign=gta6-01)
 [![rank](https://make.fun/badge/gta6-01/sarivenia84-netizen/pulau-senja-gta6/rank.svg)](https://make.fun/bounty/gta6-01/leaderboard?utm_source=github&utm_medium=readme&utm_campaign=gta6-01)
